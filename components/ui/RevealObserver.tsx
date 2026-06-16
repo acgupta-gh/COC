@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 
 /**
  * RevealObserver — mounts a single IntersectionObserver on the page that
@@ -12,9 +13,16 @@ import { useEffect } from 'react'
  * automatically stagger its direct children.
  *
  * No external dependency. Degrades gracefully (elements visible if JS off).
+ *
+ * pathname dependency: re-runs on every client-side route change so that
+ * .reveal elements added by the incoming page are picked up. Without this,
+ * navigating Home → About left those elements permanently invisible because
+ * the layout never remounts during client-side navigation.
  */
 
 export function RevealObserver() {
+  const pathname = usePathname()
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -37,7 +45,7 @@ export function RevealObserver() {
     targets.forEach((el) => observer.observe(el))
 
     return () => observer.disconnect()
-  }, [])
+  }, [pathname])
 
   return null
 }
